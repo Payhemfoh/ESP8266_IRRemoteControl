@@ -17,7 +17,7 @@ A collection of ESP8266 / ESP32 projects: web-controlled IR remotes (smart TV, a
 
 ## Secrets
 
-Projects that need credentials (`nodeMcu_IRsender_v2.1`, `nodeMcu_IRsender_v3.0`, `gate_controller`) read them from a `secrets.h` file that is **gitignored**. In each folder, copy `secrets.h.example` to `secrets.h` and fill it in. Never commit `secrets.h`.
+Projects that need credentials (`nodeMcu_IRsender_v2.1`, `nodeMcu_IRsender_v3.0`, `gate_controller`) read their passwords from a `secrets.h` file that is **gitignored**. In each folder, copy `secrets.h.example` to `secrets.h` and fill it in. Never commit `secrets.h`.
 
 ---
 
@@ -53,4 +53,12 @@ Relay wiring (ESP32-CAM pins; use GPIO 18, 19, 21, 22 on a regular devkit):
 
 All four relay COM terminals are chained together and connected to the Gmatic GND/COM. Each button press pulses its relay for 500 ms, like a momentary panel button. The web UI is protected by HTTP basic auth.
 
-Setup: copy `secrets.h.example` to `secrets.h`, set Wi-Fi, static IP and login, select board "AI Thinker ESP32-CAM" with PSRAM disabled, and upload. Always check the Gmatic terminals with a multimeter before connecting the relay contacts.
+Setup:
+
+1. Copy `secrets.h.example` to `secrets.h` and set the setup-portal password, OTA password and web login (no Wi-Fi details go in the code).
+2. Install the `WiFiManager` library (tzapu), select board "AI Thinker ESP32-CAM" with PSRAM disabled, and upload.
+3. On first boot (or after a Wi-Fi reset) the board starts a hotspot named `Gate-Setup`. Join it from your phone, choose your home Wi-Fi in the portal and enter its password.
+4. Give the board a fixed address with a DHCP reservation on your router (or a Pi-hole local DNS record). Reach it at `http://gate.local` or its IP.
+5. To forget the saved Wi-Fi, hold the BOOT/FLASH button (GPIO0) for 3 s at power-up. Later updates can be sent over Wi-Fi (OTA) using the OTA password.
+
+Always check the Gmatic terminals with a multimeter before connecting the relay contacts.

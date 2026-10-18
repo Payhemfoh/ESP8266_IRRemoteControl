@@ -4,19 +4,14 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
+#include <WiFiManager.h>   // tzapu/WiFiManager
+#include <ArduinoOTA.h>
 
 #include "secrets.h"  // copy secrets.h.example to secrets.h and fill in
 
-// ---- Config (values come from secrets.h) ----
-const char* WIFI_SSID = SECRET_WIFI_SSID;
-const char* WIFI_PASS = SECRET_WIFI_PASS;
-
-// Static IP (set to match a DHCP reservation / Pi-hole local DNS record for gate.local)
-IPAddress LOCAL_IP SECRET_LOCAL_IP;
-IPAddress GATEWAY SECRET_GATEWAY;
-IPAddress SUBNET(255, 255, 255, 0);
-IPAddress DNS1 SECRET_DNS;  // Pi-hole
-
+// ---- Config ----
+// Wi-Fi is set up through the WiFiManager portal (no SSID or IP in the code).
+// Give the board a fixed address with a DHCP reservation on the router.
 const char* HOSTNAME = "gate";   // mDNS: gate.local
 const char* AUTH_USER = SECRET_AUTH_USER;
 const char* AUTH_PASS = SECRET_AUTH_PASS;
@@ -105,12 +100,25 @@ void handleApi() {
 
 void connectWifi() {
   WiFi.mode(WIFI_STA);
+  WiFi.setSleep(false);
   WiFi.setHostname(HOSTNAME);
-  WiFi.config(LOCAL_IP, GATEWAY, SUBNET, DNS1);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  uint32_t start = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - start < 20000) delay(250);
-  if (WiFi.status() != WL_CONNECTED) ESP.restart();
+  WiFi.setAutoReconnect(true);
+
+  // Hold BOOT (GPIO0) for 3 s at power-up to forget the saved WiFi
+  pinMode(0, INPUT_PULLUP);
+  delay(100);
+  unsigned long held = millis();
+  while (digitalRead(0) == LOW && millis() - held < 3000) delay(50);
+  bool clearWifi = (digitalRead(0) == LOW);
+
+  WiFiManager wm;
+  if (clearWifi) { Serial.println("Clearing saved WiFi"); wm.resetSettings(); }
+  wm.setConnectTimeout(20);
+  wm.setConfigPortalTimeout(180);  // then restart and retry (e.g. router still booting)
+  if (!wm.autoConnect(SETUP_AP_NAME, SETUP_AP_PASSWORD)) {
+    Serial.println("WiFi setup failed/timed out, restarting");
+    ESP.restart();
+  }
 }
 
 void setup() {
@@ -125,6 +133,10 @@ void setup() {
   Serial.println(WiFi.localIP());
   MDNS.begin(HOSTNAME);
 
+  ArduinoOTA.setHostname(HOSTNAME);
+  ArduinoOTA.setPassword(OTA_PASSWORD);
+  ArduinoOTA.begin();
+
   server.on("/", HTTP_GET, handleRoot);
   server.onNotFound([]() {
     if (server.uri().startsWith("/api/")) handleApi();
@@ -134,6 +146,7 @@ void setup() {
 }
 
 void loop() {
+  ArduinoOTA.handle();
   server.handleClient();
 
   uint32_t now = millis();
@@ -142,10 +155,5 @@ void loop() {
       digitalWrite(channels[i].pin, HIGH);
       channels[i].offAt = 0;
     }
-  }
-
-  if (WiFi.status() != WL_CONNECTED) {  // reconnect without blocking relay timing forever
-    static uint32_t last = 0;
-    if (now - last > 10000) { last = now; WiFi.reconnect(); }
   }
 }
