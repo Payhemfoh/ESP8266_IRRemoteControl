@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Samsung Controller</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      margin: auto;
+      max-width: 750px;
+      font-family: "Roboto", sans-serif;
+    }
+    h1 { margin-bottom: 20px; }
+    button {
+      width: 150px;
+      height: 50px;
+      margin: 5px;
+      border: none;
+      background-color: rgb(80, 10, 172);
+      border-radius: 2em;
+      font-weight: 700;
+      font-size: 14px;
+      color: #ffffff;
+      text-shadow: 0 0.04em 0.04em rgba(0, 0, 0, 0.35);
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: bold;
+      color: green;
+    }
+    .row {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Samsung Controller</h1>
+
+  <div class="row">
+    <button onclick='sendCommand("SOURCE")'>SOURCE</button>
+    <button onclick='sendCommand("POWER")'>POWER</button>
+  </div>
+  <div class="row">
+    <button onclick='sendCommand("VOLDOWN")'>- VOL</button>
+    <button onclick='sendCommand("MUTE")'>MUTE</button>
+    <button onclick='sendCommand("VOLUP")'>+ VOL</button>
+  </div>
+  <div class="row">
+    <button onclick='sendCommand("UP")'>UP</button>
+  </div>
+  <div class="row">
+    <button onclick='sendCommand("LEFT")'>LEFT</button>
+    <button onclick='sendCommand("SMART")'>SMART</button>
+    <button onclick='sendCommand("RIGHT")'>RIGHT</button>
+  </div>
+  <div class="row">
+    <button onclick='sendCommand("DOWN")'>DOWN</button>
+  </div>
+  <div class="row">
+    <button onclick='sendCommand("RETURN")'>RETURN</button>
+    <button onclick='sendCommand("ENTER")'>ENTER</button>
+  </div>
+
+  <div id="status">Status: Ready</div>
+
+  <script>
+    function sendCommand(btn) {
+      fetch("/control?BTN=" + btn)
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("status").innerText = data;
+        })
+        .catch(() => {
+          document.getElementById("status").innerText = "Error: no response";
+        });
+    }
+  </script>
+</body>
+</html>
