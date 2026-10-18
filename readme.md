@@ -51,11 +51,11 @@ Relay wiring (ESP32-CAM pins; use GPIO 18, 19, 21, 22 on a regular devkit):
 | Light (I.R.) | 15 | IN3 / NO3 | LIGHT |
 | System Lock | 16 | IN4 / NO4 | LOCK |
 
-All four relay COM terminals are chained together and connected to the Gmatic GND/COM. Each button press pulses its relay for 500 ms, like a momentary panel button. The web UI is protected by HTTP basic auth.
+All four relay COM terminals are chained together and connected to the Gmatic GND/COM. Each button press pulses its relay for 500 ms, like a momentary panel button. The web UI has no login, so keep the device on a trusted LAN only (do not port-forward it).
 
 Setup:
 
-1. Copy `secrets.h.example` to `secrets.h` and set the setup-portal password, OTA password and web login (no Wi-Fi details go in the code).
+1. Copy `secrets.h.example` to `secrets.h` and set the setup-portal password and OTA password (no Wi-Fi details go in the code).
 2. Install the `WiFiManager` library (tzapu), select board **"ESP32 Dev Module"** (partition scheme "Default 4MB with spiffs", PSRAM disabled), and upload. Do not use the "AI Thinker ESP32-CAM" profile: it crashed the WiFiManager portal on the tested board.
 3. On first boot (or after a Wi-Fi reset) the board starts a hotspot named `Gate-Setup`. Join it from your phone, choose your home Wi-Fi in the portal and enter its password.
 4. Give the board a fixed address with a DHCP reservation on your router (or a Pi-hole local DNS record). Reach it at `http://gate.local` or its IP.

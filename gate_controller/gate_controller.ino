@@ -13,8 +13,6 @@
 // Wi-Fi is set up through the WiFiManager portal (no SSID or IP in the code).
 // Give the board a fixed address with a DHCP reservation on the router.
 const char* HOSTNAME = "gate";   // mDNS: gate.local
-const char* AUTH_USER = SECRET_AUTH_USER;
-const char* AUTH_PASS = SECRET_AUTH_PASS;
 
 const uint32_t PULSE_MS = 500;
 
@@ -73,19 +71,11 @@ String page() {
   return h;
 }
 
-bool authed() {
-  if (server.authenticate(AUTH_USER, AUTH_PASS)) return true;
-  server.requestAuthentication();
-  return false;
-}
-
 void handleRoot() {
-  if (!authed()) return;
   server.send(200, "text/html", page());
 }
 
 void handleApi() {
-  if (!authed()) return;
   if (server.method() != HTTP_POST) { server.send(405, "text/plain", "POST only"); return; }
   String id = server.uri().substring(5);  // after "/api/"
   for (size_t i = 0; i < NCH; i++) {
