@@ -56,7 +56,7 @@ All four relay COM terminals are chained together and connected to the Gmatic GN
 Setup:
 
 1. Copy `secrets.h.example` to `secrets.h` and set the setup-portal password, OTA password and web login (no Wi-Fi details go in the code).
-2. Install the `WiFiManager` library (tzapu), select board "AI Thinker ESP32-CAM" with PSRAM disabled, and upload.
+2. Install the `WiFiManager` library (tzapu), select board **"ESP32 Dev Module"** (partition scheme "Default 4MB with spiffs", PSRAM disabled), and upload. Do not use the "AI Thinker ESP32-CAM" profile: it crashed the WiFiManager portal on the tested board.
 3. On first boot (or after a Wi-Fi reset) the board starts a hotspot named `Gate-Setup`. Join it from your phone, choose your home Wi-Fi in the portal and enter its password.
 4. Give the board a fixed address with a DHCP reservation on your router (or a Pi-hole local DNS record). Reach it at `http://gate.local` or its IP.
 5. To forget the saved Wi-Fi, hold the BOOT/FLASH button (GPIO0) for 3 s at power-up. Later updates can be sent over Wi-Fi (OTA) using the OTA password.

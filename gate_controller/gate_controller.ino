@@ -1,6 +1,6 @@
 // ESP32 smart autogate controller (Gmatic indoor panel replacement)
 // 4-ch active-LOW relay: GPIO13->IN1 (BOTH), 14->IN2 (LEFT/pedestrian), 15->IN3 (LIGHT), 16->IN4 (LOCK)
-// Board: "AI Thinker ESP32-CAM" (PSRAM disabled, camera unused)
+// Board: "ESP32 Dev Module" (NOT "AI Thinker ESP32-CAM": its PSRAM flags crash WiFiManager)
 #include <WiFi.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
